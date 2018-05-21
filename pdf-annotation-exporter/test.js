@@ -30,24 +30,30 @@ function getHighlights(page) {
     var result = [];
 
     for(var idx = 0; idx < highlights.length; ++idx) {
-        var highlight = highlights[idx];
 
-        var highlightRegion = toElementRegion(highlight);
+        var highlightElement = highlights[idx];
+
+        var highlightRegion = toElementRegion(highlightElement);
         var highlightBox = regionToBox(highlightRegion);
 
-        console.log("FIXME: ", document.defaultView.getComputedStyle(highlight));
-        console.log("FIXME2: ", highlight.getClientRects());
+        var highlightRegionWithScale = getScaledElementRegion(highlightElement);
+        var highlightBoxWithScale = regionToBox(highlightRegionWithScale);
 
-        console.log("highlight: ", highlight)
+        //console.log("FIXME: ", document.defaultView.getComputedStyle(highlightElement));
+        //console.log("FIXME2: ", highlightElement.getClientRects());
 
-        console.log("highlightRegion using offsets: ", toElementRegionUsingOffset(highlight));
+        console.log("highlight: ", highlightElement)
+
+        console.log("highlightRegion using offsets: ", toElementRegionUsingOffset(highlightElement));
+        console.log("highlightRegion using offsets with scale: ", toElementRegionUsingOffsetWithScale(highlightElement));
+        console.log("highlightElement client rect bounding box: ", highlightElement.getBoundingClientRect());
 
         console.log("highlightRegion: ", highlightRegion)
         console.log("highlightBox: ", highlightBox)
 
-        var highlightText = getHighlightText(page, highlightBox);
+        var highlight = getHighlight(page, highlightBox, highlightBoxWithScale);
 
-        result.push(highlightText);
+        result.push(highlight);
 
     }
 
@@ -56,6 +62,8 @@ function getHighlights(page) {
 }
 
 function getHighlightImage(page, highlightBox) {
+
+    // FIXME: the transform has a 'scale' that I have to factor into account..
 
     var canvas = getPageCanvas(page);
 
@@ -70,12 +78,13 @@ function getHighlightImage(page, highlightBox) {
 
     // FIXME: the width and height are proper but the x and y are WAY off...
 
+    console.log("FIXME: highlightBox: ", highlightBox);
     console.log("FIXME: highlightRegion: ", highlightRegion);
 
     // //call its drawImage() function passing it the source canvas directly
-    // destCtx.drawImage(canvas,
-    //                   highlightRegion.left, highlightRegion.top, highlightRegion.width, highlightRegion.height,
-    //                   0, 0, highlightRegion.width, highlightRegion.height );
+    destCtx.drawImage(canvas,
+                      highlightRegion.left, highlightRegion.top, highlightRegion.width, highlightRegion.height,
+                      0, 0, highlightRegion.width, highlightRegion.height );
 
     // we could also call context .getImageData with x, y, width and height..
 
@@ -87,12 +96,12 @@ function getHighlightImage(page, highlightBox) {
 
     // this makes no sense.. the coordinates on teh underlying image are way
     // off... not sure wy.  The FULL image renders properly though.
-
-
-    // https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/getImageData
-    //var imageData = canvas.getContext('2d').getImageData(553, 339, 150, 150);
-    var imageData = canvas.getContext('2d').getImageData(100, 100, 500, 500);
-    destCtx.putImageData(imageData, 0, 0);
+    //
+    //
+    // // https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/getImageData
+    // //var imageData = canvas.getContext('2d').getImageData(553, 339, 150, 150);
+    // var imageData = canvas.getContext('2d').getImageData(100, 100, 500, 500);
+    // destCtx.putImageData(imageData, 0, 0);
 
     // FIXME: load my coordinates into an image editor like gimp and then see if they work..
     // and that maybe this is a bug with the canvas...
@@ -122,7 +131,7 @@ function getImage(page) {
 // TODO: this could be more efficient by using an index of the offsets so that
 // we only have to search within the offsets and dimensions that we're interested
 // in.
-function getHighlightText(page, highlightBox) {
+function getHighlight(page, highlightBox, highlightBoxWithScale) {
 
     // FIXME: change to highlightBox
 
@@ -149,7 +158,7 @@ function getHighlightText(page, highlightBox) {
 
     }
 
-    var image = getHighlightImage(page, highlightBox);
+    var image = getHighlightImage(page, highlightBoxWithScale);
 
     return createHighlight(highlightBox, linesOfText, image);
 
@@ -188,6 +197,43 @@ function createBox(point0, point1) {
 // A euclidian point
 function createPoint(x,y) {
     return {x: x, y: y};
+}
+
+function getScaledElementRegion(element) {
+
+    // the width and height here are what we want and don't need to be scaled.
+    var boundingClientRect = highlightElement.getBoundingClientRect();
+
+    //offsetLeft and offsetTop here are correct but DO need scaling.
+
+    var scaleX = 1.33333333333;
+    var scaleY = 1.33333333333;
+
+    return {left: element.offsetLeft * scaleX,
+            top: element.offsetTop * scaleY,
+            width: boundingClientRect.width,
+            height: boundingClientRect.height };
+
+}
+
+function toElementRegionUsingOffsetWithScale(element) {
+
+    // this is a bit of a hack unfortunately.
+
+    // FIXME: read these from the data...
+    var scaleX = 1.333333;
+    var scaleY = 1.333333;
+
+    var result = createRegion(element.offsetLeft, element.offsetTop, element.offsetWidth, element.offsetHeight);
+
+    result.left = result.left * scaleX;
+    result.width = result.width * scaleX;
+
+    //result.top = result.top * scaleY;
+    result.height = result.height * scaleY;
+
+    return result;
+
 }
 
 function toElementRegionUsingOffset(element) {
