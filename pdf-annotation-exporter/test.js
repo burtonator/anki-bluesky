@@ -160,7 +160,7 @@ function getHighlight(page, highlightBox, highlightBoxWithScale) {
 
     var image = getHighlightImage(page, highlightBoxWithScale);
 
-    return createHighlight(highlightBox, linesOfText, image);
+    return createHighlight(highlightBox, linesOfText, image, highlightBoxWithScale);
 
 }
 
@@ -168,9 +168,9 @@ function getHighlight(page, highlightBox, highlightBoxWithScale) {
  * Create an object with the bounding box of the text plus the text as an actual
  * array of lines.
  */
-function createHighlight(box, linesOfText, image) {
+function createHighlight(box, linesOfText, image, highlightBoxWithScale) {
 
-    return {box: box, linesOfText: linesOfText, image: image};
+    return {box: box, linesOfText: linesOfText, image: image, box: highlightBoxWithScale};
 
 }
 
@@ -206,8 +206,8 @@ function getScaledElementRegion(element) {
 
     //offsetLeft and offsetTop here are correct but DO need scaling.
 
-    var scaleX = 1.33333333333;
-    var scaleY = 1.33333333333;
+    var scaleX = 2.6666666666666666;
+    var scaleY = 2.6666666666666666;
 
     return {left: element.offsetLeft * scaleX,
             top: element.offsetTop * scaleY,
@@ -301,17 +301,37 @@ function createPageExtract(highlights, image) {
 //     height: 58.755
 // };
 
-var result = {};
+function extract() {
+
+    result = {
+        pages: []
+    };
+
+    var pages = document.querySelectorAll(".page");
+
+    for(var idx = 0; idx < pages.length; ++idx) {
+        var page = pages[idx];
+
+        var canvas = getPageCanvas(page);
+        if (! canvas)
+            continue;
+
+        var pageExtract = extractPage(page);
+        result.pages.push(pageExtract);
+
+    }
+
+    return result;
+    
+}
 
 // FIXME: I now need to tell the rendered to go through and render all the pages
 // and use promises as it doesn't actually do this by itself.
 
 // FIXME: include support for notes and highlights of regions.
 
-// FIXME: include getting the image out of the page so I can snip regions of text.
+var result = extract();
 
-var page0 = document.querySelectorAll(".page")[0];
-var pageExtract = extractPage(page0);
-console.log(JSON.stringify(pageExtract, null, "  "));
+console.log(JSON.stringify(result, null, "  "));
 
 
