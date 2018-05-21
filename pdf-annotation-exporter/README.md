@@ -12,16 +12,12 @@ as HTML or SVG that can be used natively in other tools.
 
 What works:
 
-- I can past poc.js into a PDF.js loaded PDF and it's able to export the text and
+- I can paste poc.js into a PDF.js loaded PDF and it's able to export the text and
   also the image of the highlighted text.
 
-# What I need help on?
+- Exporting the entire page as a PNG
 
-- Is there a reliable way to extract the HTML with all the formatting for the PDF
-  to be embedded elsewhere in an iframe?  Some type of data URL of encoded
-  HTML would be ideal.
-
-# Example:
+- Finding the box coordinates around the highlight.
 
 ## Text extracted
 
@@ -32,7 +28,8 @@ It's able to properly export the text:
     "This paper introduces a new family of leaderless Byzan-",
     "tine fault tolerance protocols, built on a metastable mech-",
     "anism.  These protocols provide a strong probabilistic",
-    "safety guarantee in the presence of Byzantine adversaries,"
+    "safety guarantee in the presence of Byzantine adversaries,",
+    "while their concurrent nature enables them to achieve"
   ],
 
 ```
@@ -40,4 +37,22 @@ It's able to properly export the text:
 ## Image
 
 It's able to properly export an image too:
+
+# What's next
+
+- other types of annotations.
+
+- annotations with user text.
+
+# What I need help on?
+
+- Is there a reliable way to extract the HTML with all the formatting for the PDF
+  to be embedded elsewhere in an iframe?  Some type of data URL of encoded
+  HTML would be ideal.
+
+# Example:
+
+![](example1.png)
+
+![](example2.png)
 

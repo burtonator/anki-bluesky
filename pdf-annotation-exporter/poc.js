@@ -33,6 +33,8 @@ function getHighlights(page) {
 
         var highlightElement = highlights[idx];
 
+        console.log("highlightElement: ", highlightElement)
+
         var highlightRegion = toElementRegion(highlightElement);
         var highlightBox = regionToBox(highlightRegion);
 
@@ -42,10 +44,7 @@ function getHighlights(page) {
         //console.log("FIXME: ", document.defaultView.getComputedStyle(highlightElement));
         //console.log("FIXME2: ", highlightElement.getClientRects());
 
-        console.log("highlight: ", highlightElement)
-
         console.log("highlightRegion using offsets: ", toElementRegionUsingOffset(highlightElement));
-        console.log("highlightRegion using offsets with scale: ", toElementRegionUsingOffsetWithScale(highlightElement));
         console.log("highlightElement client rect bounding box: ", highlightElement.getBoundingClientRect());
 
         console.log("highlightRegion: ", highlightRegion)
@@ -202,37 +201,18 @@ function createPoint(x,y) {
 function getScaledElementRegion(element) {
 
     // the width and height here are what we want and don't need to be scaled.
-    var boundingClientRect = highlightElement.getBoundingClientRect();
+    var boundingClientRect = element.getBoundingClientRect();
 
     //offsetLeft and offsetTop here are correct but DO need scaling.
+    // FIXME: read these from the data...
 
-    var scaleX = 2.6666666666666666;
-    var scaleY = 2.6666666666666666;
+    var scaleX = 2.53333333333333333;
+    var scaleY = 2.53333333333333333;
 
     return {left: element.offsetLeft * scaleX,
             top: element.offsetTop * scaleY,
             width: boundingClientRect.width,
             height: boundingClientRect.height };
-
-}
-
-function toElementRegionUsingOffsetWithScale(element) {
-
-    // this is a bit of a hack unfortunately.
-
-    // FIXME: read these from the data...
-    var scaleX = 1.333333;
-    var scaleY = 1.333333;
-
-    var result = createRegion(element.offsetLeft, element.offsetTop, element.offsetWidth, element.offsetHeight);
-
-    result.left = result.left * scaleX;
-    result.width = result.width * scaleX;
-
-    //result.top = result.top * scaleY;
-    result.height = result.height * scaleY;
-
-    return result;
 
 }
 
